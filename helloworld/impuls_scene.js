@@ -36,8 +36,8 @@ helloworld.ImpulsScene= function(director,friends) {
 	var tunnel = new helloworld.Tunnel(cc.getDeepestDomElement());
 	var score=0;
 
-	var sampleKey = new helloworld.KeyObject().setPosition(1024,620);
-	sampleKey.setFill('assets/left.png');
+	//var sampleKey = new helloworld.KeyObject().setPosition(1024,620);
+	//sampleKey.setFill('assets/left.png');
 
 	//lifebar stuff here
 	var lifebar = new lime.RoundedRect().setFill('#0f0').setSize(500,20).setRadius(0).setAnchorPoint(0,0).setPosition(500,18);
@@ -57,7 +57,7 @@ helloworld.ImpulsScene= function(director,friends) {
 	crosshairs.add(crosshair);
 
 	var keyObjects =  helloworld.Helpers.createGroupInfo(new goog.structs.Set(),"keyObjects",collisionManager,target);
-	keyObjects.iterable.add(sampleKey);
+	//keyObjects.iterable.add(sampleKey);
 
 
 	var googlesFrame = new lime.Sprite().setSize(1024,768).setPosition(512,384).setFill('assets/bg_impuls1.png');
@@ -74,12 +74,12 @@ helloworld.ImpulsScene= function(director,friends) {
 	impuls.setMovingBounds(75,1024-65,768-110,65);
 	var collisionManager = new helloworld.CollisionManager();
 
-	collisionManager.addCollidable("keyObjects",sampleKey);
+	//collisionManager.addCollidable("keyObjects",sampleKey);
 	collisionManager.addCollidable("Crosshair",crosshair);
 
 	target.appendChild(crosshair);
 	this.appendChild(background);
-	target.appendChild(sampleKey);
+	//target.appendChild(sampleKey);
 	this.appendChild(hudBG);
 	this.appendChild(target);
 	this.appendChild(lifebar);
@@ -127,7 +127,7 @@ helloworld.ImpulsScene= function(director,friends) {
 
    moving = function(dt) {
 		impuls.move();
-		sampleKey.move();
+		//sampleKey.move();
 
 		goog.iter.forEach(keyObjects.iterable, function(ko) {
 			ko.move(dt);
@@ -153,12 +153,18 @@ helloworld.ImpulsScene= function(director,friends) {
 			lifebar.setFill('rgb(255,255,0)');
 		} else {
 			lifebar.setFill('rgb(255,0,0)');
+			
+			if (viewMode == 0){
+				var fadehalf = new lime.animation.FadeTo(.5).setDuration(2);
+				impuls.runAction(fadehalf)
+			}
 		}
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
 		if (sizeF<0){
 			alert("jubidubidu");
 		}
+
 	};
 
 	generateKey = function(dt){
@@ -201,12 +207,34 @@ helloworld.ImpulsScene= function(director,friends) {
 			//if (keypresed == )
 			collisions[0][1].movingDirection["left"] = true;
 			collisions[0][1].movingDirection["down"] = true;
+		} else {
+
+			switch (collisions[0][1].keyval) {
+				case 37:
+					collisions[0][1].setFill('assets/leftic.png');
+					break;
+				case 38:
+					collisions[0][1].setFill('assets/upic.png');
+					break;
+				case 39:
+					collisions[0][1].setFill('assets/rightic.png');
+					break;
+				case 40:
+					collisions[0][1].setFill('assets/downic.png');
+					break;
+			}
+			audios.lose.play();
+			collisions[0][1].movingSpeed.y = 20;
+			collisions[0][1].movingSpeed.x = 20;
+			collisions[0][1].movingDirection["left"] = true;
+			collisions[0][1].movingDirection["up"] = true;
+			crosshair.makeInjury(3);
+			lifebarUpdate();
 		}
 		scoreText.setText('Score: '+ score.toString());
 	};
 
-	changeView = function()
-	{
+	changeView = function(){
 		if (viewMode == 0){
 			viewMode = 1;
 			console.log('to fp');
@@ -258,7 +286,7 @@ helloworld.ImpulsScene= function(director,friends) {
 
 	tunnelDraw = function(dt) {
 			tunnel.draw();
-		}
+	}
 
 	this.scheduleAll = function(schedule){
 	// listening for key stroke
