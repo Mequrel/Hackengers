@@ -33,7 +33,7 @@ helloworld.PauseScene= function(director,friends,previousScene,previousSceneType
 		handler = function() {
 			console.log("asd");
 			director.popScene();
-			previousScene.schcheduleAll(true);
+			previousScene.scheduleAll(true);
 		};
 		_this.splash.registerOnClose(handler);
 		_this.splash.close(1);

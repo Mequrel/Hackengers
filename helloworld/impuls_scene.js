@@ -1,5 +1,5 @@
 goog.provide('helloworld.ImpulsScene');
-
+goog.require('lime.GlossyButton');
 goog.require('lime.Scene');
 goog.require('lime.Layer');
 goog.require('lime.Sprite');
@@ -20,10 +20,12 @@ goog.require('helloworld.Crosshair');
 goog.require('helloworld.Tunnel');
 goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
+goog.require('helloworld.PauseScene');
 
-helloworld.ImpulsScene= function(friends) {
+helloworld.ImpulsScene= function(director,friends) {
 	lime.Scene.call(this);
 	this.friends = friends;
+	this.director = director;
 
 	var viewMode=1;
 	var target = new lime.Layer().setPosition(0,0);
@@ -254,20 +256,52 @@ helloworld.ImpulsScene= function(friends) {
 	});
 	}
 
+	tunnelDraw = function(dt) {
+			tunnel.draw();
+		}
+
+	this.scheduleAll = function(schedule){
 	// listening for key stroke
-	goog.events.listen(target,['keydown'],keydown);
-	goog.events.listen(target,['keyup'],keyup);
-	//  moving
-	lime.scheduleManager.schedule(moving,target);
-	//collisions
-	lime.scheduleManager.schedule(collisionsCheck,target);
-	lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
-	lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
-	lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
-	lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
-	lime.scheduleManager.scheduleWithDelay(function(dt) {
-		tunnel.draw();
-	},background,75);
+
+	if (schedule){
+		goog.events.listen(target,['keydown'],keydown);
+		goog.events.listen(target,['keyup'],keyup);
+		//  moving
+		lime.scheduleManager.schedule(moving,target);
+		//collisions
+		lime.scheduleManager.schedule(collisionsCheck,target);
+		lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
+		lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
+		lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
+		lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
+		lime.scheduleManager.scheduleWithDelay(tunnelDraw,background,75);
+	} else {
+		goog.events.unlisten(target,['keydown'],keydown);
+		goog.events.unlisten(target,['keyup'],keyup);
+
+
+		lime.scheduleManager.unschedule(moving,target);
+		//collisions
+		lime.scheduleManager.unschedule(collisionsCheck,target);
+		lime.scheduleManager.unschedule(checkOutOfRange,target);
+		lime.scheduleManager.unschedule(generateKey,target);;
+		lime.scheduleManager.unschedule(lifebarUpdate,target);
+		lime.scheduleManager.unschedule(cleanup,target);
+		lime.scheduleManager.unschedule(tunnelDraw,background);
+	}
+
+	};
+
+	_this=this;
+		// Menu button
+	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(20,60);
+	this.appendChild(menuButton);
+	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
+		_this.scheduleAll(false);
+		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
+	});
+
+	this.scheduleAll(true);
 
 };
 
