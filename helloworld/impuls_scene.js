@@ -177,13 +177,31 @@ helloworld.ImpulsScene= function(director,friends) {
 		} else if ( n % 3 == 0){
 			nk.setFill('assets/right.png');
 			nk.keyval=39;
-		} else if ( n % 4 == 0){
+		} else if ( n % 5 == 0 || n % 7 == 0){
 			nk.setFill('assets/up.png');
 			nk.keyval=38;
 		} else {
 			nk.setFill('assets/down.png');
 			nk.keyval=40;
 		}
+
+		if (score > 200){
+			nk.movingSpeed.x = 10;
+		}
+
+		if (score > 400){
+			nk.movingSpeed.x = 11;
+		}
+
+		if (score > 600){
+			nk.movingSpeed.x = 13;
+		}
+
+		//check it!
+		//if (score > 800){
+		//	nk.movingSpeed.x = 16;
+		//}
+
 		target.appendChild(nk);
 		collisionManager.addCollidable("keyObjects",nk);
 		keyObjects.iterable.add(nk);
@@ -193,8 +211,9 @@ helloworld.ImpulsScene= function(director,friends) {
 		crosshair.setFill('assets/crosshair.png');
 		collisions = collisionManager.checkAllCollisions("Crosshair","keyObjects");
 		if (typeof collisions[0] != 'undefined'){
-			console.log(collisions[0][1].keyval);
-		} else {		
+		} else {	
+			crosshair.makeInjury(1);
+			lifebarUpdate();
 			return ;
 		}
 
