@@ -27,10 +27,12 @@ helloworld.Tunnel = function(canvas){
     this.numPoints = 20;
     this.alpha = 360 / this.numPoints;
     this.radadd = 20;
-
     this.points = [];
-    for (var i = 0; i < this.numRings * this.numPoints; i++) {
-        this.points[i] = {x: 0, y: 0};
+    for (var i = 0; i < this.numRings; i++) {
+        this.points[i] = [];
+        for(var j=0; j<this.numPoints; ++j) {
+            this.points[i][j] = {x: 0, y: 0};
+        }
     }
 
 };
@@ -38,14 +40,28 @@ helloworld.Tunnel = function(canvas){
 
 helloworld.Tunnel.prototype.draw = function() {
         var radius = 0;
+
+        this.impulsePath = []
         for (var i = 0; i < this.numRings; i++) {
+            var avg = {x: 0, y: 0}
+
             for (var j = 0; j < this.numPoints; j++) {
-                this.points[i * this.numPoints + j].x = Math.round(this.cx + 60 * this.coss[(this.x + 200 - radius + 3600) % 360]
+                this.points[i][j].x = Math.round(this.cx + 60 * this.coss[(this.x + 200 - radius + 3600) % 360]
                                     + radius * this.coss[(i * 5 + this.alpha * j) % 360]);
-                this.points[i * this.numPoints + j].y = Math.round(this.cy + 45 * this.sins[(this.y + 200 - radius + 3600) % 360]
+                this.points[i][j].y = Math.round(this.cy + 45 * this.sins[(this.y + 200 - radius + 3600) % 360]
                                     + radius * this.sins[(i * 5 + this.alpha * j) % 360]);
+
+                //console.log(this.points[i][j]);
+
+                avg.x += this.points[i][j].x
+                avg.y += this.points[i][j].y
             }
             radius += this.radadd;
+
+            avg.x /= this.numPoints;
+            avg.y /= this.numPoints;
+
+            this.impulsePath.push(avg);
         }
 
         for (var i = 0; i < this.numRings - 1; i++) {
@@ -57,10 +73,10 @@ helloworld.Tunnel.prototype.draw = function() {
                 this.ctx.strokeStyle = "rgb(0,255,0)";
                 this.ctx.fillStyle = "rgb(" + r + ", " + g + ", " + b + ")";
                 this.ctx.beginPath();
-                this.ctx.moveTo(this.points[i * this.numPoints + j].x, this.points[i * this.numPoints + j].y);
-                this.ctx.lineTo(this.points[i * this.numPoints + (j + 1) % this.numPoints].x, this.points[i * this.numPoints + (j + 1) % this.numPoints].y);
-                this.ctx.lineTo(this.points[(i + 1) * this.numPoints + (j + 1) % this.numPoints].x, this.points[(i + 1) * this.numPoints + (j + 1) % this.numPoints].y);
-                this.ctx.lineTo(this.points[(i + 1) * this.numPoints + j].x, this.points[(i + 1) * this.numPoints + j].y);
+                this.ctx.moveTo(this.points[i][j].x, this.points[i][j].y);
+                this.ctx.lineTo(this.points[i][(j + 1) % this.numPoints].x, this.points[i][(j + 1) % this.numPoints].y);
+                this.ctx.lineTo(this.points[i + 1][(j + 1) % this.numPoints].x, this.points[i + 1][(j + 1) % this.numPoints].y);
+                this.ctx.lineTo(this.points[i + 1][j].x, this.points[i + 1][j].y);
                 //ctx.closePath();
                 this.ctx.fill();
                 this.ctx.stroke();
