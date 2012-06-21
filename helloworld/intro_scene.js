@@ -20,7 +20,7 @@ helloworld.IntroScene= function(director,friends) {
     setFontColor('#fff').setFontSize(26).setFontWeight('bold').setSize(150,30).setAnchorPoint(0,0).setPosition(370,140);
 
     goog.events.listen(game1, ['mousedown', 'touchstart'], function(e) {
-		var impuls_scene = new helloworld.ImpulsScene(friends);
+		var impuls_scene = new helloworld.ImpulsScene(director,friends);
 		director.replaceScene(impuls_scene);
 	});
 

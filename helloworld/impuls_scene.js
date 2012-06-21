@@ -1,5 +1,5 @@
 goog.provide('helloworld.ImpulsScene');
-
+goog.require('lime.GlossyButton');
 goog.require('lime.Scene');
 goog.require('lime.Layer');
 goog.require('lime.Sprite');
@@ -20,10 +20,12 @@ goog.require('helloworld.Crosshair');
 goog.require('helloworld.Tunnel');
 goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
+goog.require('helloworld.PauseScene');
 
-helloworld.ImpulsScene= function(friends) {
+helloworld.ImpulsScene= function(director,friends) {
 	lime.Scene.call(this);
 	this.friends = friends;
+	this.director = director;
 
 	var viewMode=1;
 	var target = new lime.Layer().setPosition(0,0);
@@ -34,8 +36,8 @@ helloworld.ImpulsScene= function(friends) {
 	var tunnel = new helloworld.Tunnel(cc.getDeepestDomElement());
 	var score=0;
 
-	var sampleKey = new helloworld.KeyObject().setPosition(1024,620);
-	sampleKey.setFill('assets/left.png');
+	//var sampleKey = new helloworld.KeyObject().setPosition(1024,620);
+	//sampleKey.setFill('assets/left.png');
 
 	//lifebar stuff here
 	var lifebar = new lime.RoundedRect().setFill('#0f0').setSize(500,20).setRadius(0).setAnchorPoint(0,0).setPosition(500,18);
@@ -55,7 +57,7 @@ helloworld.ImpulsScene= function(friends) {
 	crosshairs.add(crosshair);
 
 	var keyObjects =  helloworld.Helpers.createGroupInfo(new goog.structs.Set(),"keyObjects",collisionManager,target);
-	keyObjects.iterable.add(sampleKey);
+	//keyObjects.iterable.add(sampleKey);
 
 
 	var googlesFrame = new lime.Sprite().setSize(1024,768).setPosition(512,384).setFill('assets/bg_impuls1.png');
@@ -72,12 +74,12 @@ helloworld.ImpulsScene= function(friends) {
 	impuls.setMovingBounds(75,1024-65,768-110,65);
 	var collisionManager = new helloworld.CollisionManager();
 
-	collisionManager.addCollidable("keyObjects",sampleKey);
+	//collisionManager.addCollidable("keyObjects",sampleKey);
 	collisionManager.addCollidable("Crosshair",crosshair);
 
 	target.appendChild(crosshair);
 	this.appendChild(background);
-	target.appendChild(sampleKey);
+	//target.appendChild(sampleKey);
 	this.appendChild(hudBG);
 	this.appendChild(target);
 	this.appendChild(lifebar);
@@ -102,6 +104,10 @@ helloworld.ImpulsScene= function(friends) {
 			case goog.events.KeyCodes.V:
 				changeView();
 				break;
+			case goog.events.KeyCodes.ESC:
+				_this.scheduleAll(false);
+				director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
+				break;
 		}
 	};
 
@@ -125,7 +131,7 @@ helloworld.ImpulsScene= function(friends) {
 
    moving = function(dt) {
 		impuls.move();
-		sampleKey.move();
+		//sampleKey.move();
 
 		goog.iter.forEach(keyObjects.iterable, function(ko) {
 			ko.move(dt);
@@ -151,12 +157,18 @@ helloworld.ImpulsScene= function(friends) {
 			lifebar.setFill('rgb(255,255,0)');
 		} else {
 			lifebar.setFill('rgb(255,0,0)');
+			
+			if (viewMode == 0){
+				var fadehalf = new lime.animation.FadeTo(.5).setDuration(2);
+				impuls.runAction(fadehalf)
+			}
 		}
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
 		if (sizeF<0){
 			alert("jubidubidu");
 		}
+
 	};
 
 	generateKey = function(dt){
@@ -169,13 +181,31 @@ helloworld.ImpulsScene= function(friends) {
 		} else if ( n % 3 == 0){
 			nk.setFill('assets/right.png');
 			nk.keyval=39;
-		} else if ( n % 4 == 0){
+		} else if ( n % 5 == 0 || n % 7 == 0){
 			nk.setFill('assets/up.png');
 			nk.keyval=38;
 		} else {
 			nk.setFill('assets/down.png');
 			nk.keyval=40;
 		}
+
+		if (score > 200){
+			nk.movingSpeed.x = 10;
+		}
+
+		if (score > 400){
+			nk.movingSpeed.x = 11;
+		}
+
+		if (score > 600){
+			nk.movingSpeed.x = 13;
+		}
+
+		//check it!
+		//if (score > 800){
+		//	nk.movingSpeed.x = 16;
+		//}
+
 		target.appendChild(nk);
 		collisionManager.addCollidable("keyObjects",nk);
 		keyObjects.iterable.add(nk);
@@ -185,8 +215,9 @@ helloworld.ImpulsScene= function(friends) {
 		crosshair.setFill('assets/crosshair.png');
 		collisions = collisionManager.checkAllCollisions("Crosshair","keyObjects");
 		if (typeof collisions[0] != 'undefined'){
-			console.log(collisions[0][1].keyval);
-		} else {		
+		} else {	
+			crosshair.makeInjury(1);
+			lifebarUpdate();
 			return ;
 		}
 
@@ -199,12 +230,34 @@ helloworld.ImpulsScene= function(friends) {
 			//if (keypresed == )
 			collisions[0][1].movingDirection["left"] = true;
 			collisions[0][1].movingDirection["down"] = true;
+		} else {
+
+			switch (collisions[0][1].keyval) {
+				case 37:
+					collisions[0][1].setFill('assets/leftic.png');
+					break;
+				case 38:
+					collisions[0][1].setFill('assets/upic.png');
+					break;
+				case 39:
+					collisions[0][1].setFill('assets/rightic.png');
+					break;
+				case 40:
+					collisions[0][1].setFill('assets/downic.png');
+					break;
+			}
+			audios.lose.play();
+			collisions[0][1].movingSpeed.y = 20;
+			collisions[0][1].movingSpeed.x = 20;
+			collisions[0][1].movingDirection["left"] = true;
+			collisions[0][1].movingDirection["up"] = true;
+			crosshair.makeInjury(3);
+			lifebarUpdate();
 		}
 		scoreText.setText('Score: '+ score.toString());
 	};
 
-	changeView = function()
-	{
+	changeView = function(){
 		if (viewMode == 0){
 			viewMode = 1;
 			console.log('to fp');
@@ -254,20 +307,52 @@ helloworld.ImpulsScene= function(friends) {
 	});
 	}
 
+	tunnelDraw = function(dt) {
+			tunnel.draw();
+	}
+
+	this.scheduleAll = function(schedule){
 	// listening for key stroke
-	goog.events.listen(target,['keydown'],keydown);
-	goog.events.listen(target,['keyup'],keyup);
-	//  moving
-	lime.scheduleManager.schedule(moving,target);
-	//collisions
-	lime.scheduleManager.schedule(collisionsCheck,target);
-	lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
-	lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
-	lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
-	lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
-	lime.scheduleManager.scheduleWithDelay(function(dt) {
-		tunnel.draw();
-	},background,75);
+
+	if (schedule){
+		goog.events.listen(target,['keydown'],keydown);
+		goog.events.listen(target,['keyup'],keyup);
+		//  moving
+		lime.scheduleManager.schedule(moving,target);
+		//collisions
+		lime.scheduleManager.schedule(collisionsCheck,target);
+		lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
+		lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
+		lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
+		lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
+		lime.scheduleManager.scheduleWithDelay(tunnelDraw,background,75);
+	} else {
+		goog.events.unlisten(target,['keydown'],keydown);
+		goog.events.unlisten(target,['keyup'],keyup);
+
+
+		lime.scheduleManager.unschedule(moving,target);
+		//collisions
+		lime.scheduleManager.unschedule(collisionsCheck,target);
+		lime.scheduleManager.unschedule(checkOutOfRange,target);
+		lime.scheduleManager.unschedule(generateKey,target);;
+		lime.scheduleManager.unschedule(lifebarUpdate,target);
+		lime.scheduleManager.unschedule(cleanup,target);
+		lime.scheduleManager.unschedule(tunnelDraw,background);
+	}
+
+	};
+
+	_this=this;
+		// Menu button
+	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(20,60);
+	this.appendChild(menuButton);
+	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
+		_this.scheduleAll(false);
+		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
+	});
+
+	this.scheduleAll(true);
 
 };
 
