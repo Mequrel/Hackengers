@@ -21,7 +21,10 @@ goog.require('helloworld.Tunnel');
 goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
 goog.require('helloworld.PauseScene');
-goog.require('lime.animation.FadeTo');
+goog.require('helloworld.FacebookScene');
+goog.require('lime.animation.ScaleTo');
+goog.require('lime.animation.MoveTo');
+goog.require('lime.animation.Spawn');
 
 goog.require('lime.animation.Event');
 
@@ -29,6 +32,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	lime.Scene.call(this);
 	this.friends = friends;
 	this.director = director;
+	this.isBeingFinalized = false;
 
 	var viewMode=1;
 	var target = new lime.Layer().setPosition(0,0);
@@ -137,6 +141,38 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		};
 	};
 
+	_this=this;
+
+	finalizeLevel = function (){
+		console.log(score);
+
+		if (score > 30){
+
+			if (viewMode == 0) {
+				_this.isBeingFinalized = true;
+				console.log('11111111111111');
+				var duration = 3.0;
+				var scaleAnim = new lime.animation.ScaleTo(0.2).setDuration(duration);
+				var moveAnim = new lime.animation.MoveTo(1024/2,768/2).setDuration(duration);
+				var anim = new lime.animation.Spawn(scaleAnim,moveAnim);
+				impuls.runAction(anim);
+				console.log('aaaaa');
+				goog.events.listen(anim,lime.animation.Event.STOP,function(e){
+					console.log('delay OK');
+					console.log('OK!');
+					_this.scheduleAll(false);
+					director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,false,"Dupa"));
+
+				});
+				console.log('22222222222222222');
+				
+			} else {
+
+			}
+		}
+	}
+		
+
 	lifebarUpdate = function(dt) {
 		var sizeF = crosshair.getLife() / crosshair.getFullLife();
 		lifebar.setSize(500*sizeF,20);
@@ -155,8 +191,12 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		}
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
+		if (!_this.isBeingFinalized) {
+			
+			finalizeLevel();
+		};
 		if (sizeF<0){
-			alert("jubidubidu");
+			
 		}
 
 	};
@@ -307,16 +347,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 			tunnel.draw();
 	}
 
-	finalizeLevel = function (dt){
-		console.log(score);
-
-		if (score > 30){
-			console.log('OK!');
-		}
-
-	}
-
-
 	this.scheduleAll = function(schedule){
 	// listening for key stroke
 
@@ -327,7 +357,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		lime.scheduleManager.schedule(moving,target);
 		//collisions
 		lime.scheduleManager.schedule(collisionsCheck,target);
-		lime.scheduleManager.schedule(finalizeLevel,target);
 		lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
 		lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
 		lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
@@ -337,7 +366,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		goog.events.unlisten(target,['keydown'],keydown);
 		goog.events.unlisten(target,['keyup'],keyup);
 		lime.scheduleManager.unschedule(moving,target);
-		lime.scheduleManager.unschedule(finalizeLevel,target);
 		lime.scheduleManager.unschedule(collisionsCheck,target);
 		lime.scheduleManager.unschedule(checkOutOfRange,target);
 		lime.scheduleManager.unschedule(generateKey,target);;
@@ -347,38 +375,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	}
 
 	};
-
-	_this=this;
-
-
-	finalizeLevel = function (dt){
-		console.log(score);
-
-		if (score > 30){
-
-			if (viewMode == 0) {
-				console.log('11111111111111');
-				var anim = new lime.animation.FadeTo(.5).setDuration(10);
-				
-				impuls.runAction(anim);
-				console.log('aaaaa');
-				goog.events.listen(anim,lime.animation.Event.STOP,function(e){
-					console.log('delay OK');
-					console.log('OK!');
-					//_this.scheduleAll(false);
-					//director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
-
-				});
-				console.log('22222222222222222');
-				
-			} else {
-
-			}
-		}
-
-	}
-					
-
+			
 
 		// Menu button
 	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(25,60);
