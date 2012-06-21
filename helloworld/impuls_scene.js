@@ -145,33 +145,23 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 
 	finalizeLevel = function (){
 		console.log(score);
-
-		if (score > 30){
-
 			if (viewMode == 0) {
 				_this.isBeingFinalized = true;
-				console.log('11111111111111');
 				var duration = 3.0;
 				var scaleAnim = new lime.animation.ScaleTo(0.2).setDuration(duration);
 				var moveAnim = new lime.animation.MoveTo(1024/2,768/2).setDuration(duration);
 				var anim = new lime.animation.Spawn(scaleAnim,moveAnim);
 				impuls.runAction(anim);
-				console.log('aaaaa');
 				goog.events.listen(anim,lime.animation.Event.STOP,function(e){
-					console.log('delay OK');
-					console.log('OK!');
 					_this.scheduleAll(false);
 					director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,false,"Dupa"));
-
 				});
-				console.log('22222222222222222');
-				
 			} else {
-
+				_this.scheduleAll(false);
+				console.log('after sch')
+				director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,false,"Dupa"));
 			}
-		}
 	}
-		
 
 	lifebarUpdate = function(dt) {
 		var sizeF = crosshair.getLife() / crosshair.getFullLife();
@@ -192,12 +182,10 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
 		
-		if (!_this.isBeingFinalized) {
-			
-			finalizeLevel();
-		};
 		if (sizeF<0){
-			
+			if (!_this.isBeingFinalized) {	
+				finalizeLevel();
+			};	
 		}
 
 	};
