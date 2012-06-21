@@ -2,4 +2,5 @@ bin/
 closure/
 box2d/
 lime/
+.DS_Store
 
