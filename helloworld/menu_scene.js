@@ -43,7 +43,7 @@ helloworld.MenuScene= function(director,friends) {
 
 
 	goog.events.listen(game1, ['mousedown', 'touchstart'], function(e) {
-		var virus_scene = new helloworld.VirusScene(director,friends);
+		var virus_scene = new helloworld.VirusScene(director,friends,helloworld.MenuScene);
 		director.replaceScene(virus_scene);
 	});
 
@@ -56,7 +56,7 @@ helloworld.MenuScene= function(director,friends) {
 
 	goog.events.listen(game3, ['mousedown', 'touchstart'], function(e) {
 		//var virus_scene = new helloworld.ImpulsScene(friends);
-		var intro_scene = new helloworld.IntroScene(director,friends);
+		var intro_scene = new helloworld.IntroScene(director,friends,helloworld.MenuScene);
 		director.replaceScene(intro_scene);
 
 	});

@@ -28,7 +28,7 @@ goog.require('helloworld.PauseScene');
 goog.require('helloworld.Splash');
 
 
-helloworld.VirusScene= function(director,friends) {
+helloworld.VirusScene= function(director,friends,menuSceneType) {
 	lime.Scene.call(this);
 	this.friends = friends;
 	this.director = director;
@@ -307,7 +307,7 @@ helloworld.VirusScene= function(director,friends) {
 		};
 	};
 	
-	this.schcheduleAll = function(schedule) {
+	this.scheduleAll = function(schedule) {
 		if (schedule) {
 			goog.events.listen(target,['keydown'],keydown);
 			goog.events.listen(target,['keyup'],keyup);
@@ -344,12 +344,12 @@ helloworld.VirusScene= function(director,friends) {
 	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(20,60);
 	this.appendChild(menuButton);
 	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
-		_this.schcheduleAll(false);
-		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.VirusScene));
+		_this.scheduleAll(false);
+		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.VirusScene,menuSceneType));
 	});
 
 
-	this.schcheduleAll(true);
+	this.scheduleAll(true);
 };
 
 goog.inherits(helloworld.VirusScene, lime.Scene);

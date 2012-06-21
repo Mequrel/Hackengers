@@ -22,7 +22,7 @@ goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
 goog.require('helloworld.PauseScene');
 
-helloworld.ImpulsScene= function(director,friends) {
+helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	lime.Scene.call(this);
 	this.friends = friends;
 	this.director = director;
@@ -349,7 +349,7 @@ helloworld.ImpulsScene= function(director,friends) {
 	this.appendChild(menuButton);
 	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
 		_this.scheduleAll(false);
-		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
+		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene,menuSceneType));
 	});
 
 	this.scheduleAll(true);

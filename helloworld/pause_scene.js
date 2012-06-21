@@ -6,11 +6,10 @@ goog.require('lime.Layer');
 goog.require('lime.Sprite');
 goog.require('helloworld.Helpers');
 goog.require('lime.GlossyButton');
-goog.require('helloworld.MenuScene');
 goog.require('lime.scheduleManager');
 
 
-helloworld.PauseScene= function(director,friends,previousScene,previousSceneType) {
+helloworld.PauseScene= function(director,friends,previousScene,previousSceneType,menuSceneType) {
 	helloworld.StandardScene.call(this,friends,director);
 	
 
@@ -52,7 +51,7 @@ helloworld.PauseScene= function(director,friends,previousScene,previousSceneType
 	goog.events.listen(this.mainMenuButton, ['mousedown', 'touchstart'], function(e) {
 		handler = function() {
 			director.popScene();
-			director.replaceScene(new helloworld.MenuScene(director,friends));
+			director.replaceScene(new menuSceneType(director,friends));
 		}
 		_this.splash.registerOnClose(handler);
 		_this.splash.close(1);
