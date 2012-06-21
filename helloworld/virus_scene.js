@@ -25,6 +25,7 @@ goog.require('helloworld.CorruptedFile');
 goog.require('helloworld.ScrollingBackground');
 goog.require('helloworld.Score');
 goog.require('helloworld.PauseScene');
+goog.require('helloworld.FacebookScene');
 goog.require('helloworld.Splash');
 
 
@@ -137,21 +138,15 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 		scoreBar.addScore(-200);
 	}
 
-	var facebookSplash
-	publishOnFacebook = function(text) {
-		FB.api('/me/feed', 'post', { message: text }, function(response) {
-			  if (!response || response.error) {
-			  	console.log(response);
-			    alert('Error occured:');
-			  } else {
-			    alert('Post ID: ' + response.id);
-			  }
-		});
-	}
 
 	playerDied = function(player) {
-		alert('You\'re dead!');
-		
+		var text = "Dupa";
+		_this.scheduleAll(false);
+		var isFacebookActive = false;
+		if (typeof(FB) != 'undefined' && FB != null && typeof(MyFB) != 'undefined' && MyFB != null ) {
+		    isFacebookActive = true;
+		};
+		director.replaceScene(new helloworld.FacebookScene(director,friends,helloworld.VirusScene,menuSceneType,scoreBar.getScore(),isFacebookActive,text));
 	};
 
 	player.registerObserver(this,playerDamaged,playerDied);
@@ -245,6 +240,7 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 
    moving = function(dt) {
    		// Player
+   		playerDied();
 		player.move();
 		// Missles
 		goog.iter.forEach(missles.iterable, function(missle) {
@@ -347,7 +343,6 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 		_this.scheduleAll(false);
 		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.VirusScene,menuSceneType));
 	});
-
 
 	this.scheduleAll(true);
 };

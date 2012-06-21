@@ -21,11 +21,18 @@ goog.require('helloworld.Tunnel');
 goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
 goog.require('helloworld.PauseScene');
+goog.require('helloworld.FacebookScene');
+goog.require('lime.animation.ScaleTo');
+goog.require('lime.animation.MoveTo');
+goog.require('lime.animation.Spawn');
+
+goog.require('lime.animation.Event');
 
 helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	lime.Scene.call(this);
 	this.friends = friends;
 	this.director = director;
+	this.isBeingFinalized = false;
 
 	var viewMode=1;
 	var target = new lime.Layer().setPosition(0,0);
@@ -36,10 +43,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	var tunnel = new helloworld.Tunnel(cc.getDeepestDomElement());
 	var score=0;
 
-	//var sampleKey = new helloworld.KeyObject().setPosition(1024,620);
-	//sampleKey.setFill('assets/left.png');
-
-	//lifebar stuff here
 	var lifebar = new lime.RoundedRect().setFill('#0f0').setSize(500,20).setRadius(0).setAnchorPoint(0,0).setPosition(500,18);
 	var hpText = new lime.Label().setText('Health: 100%').setFontFamily('Verdana').
     setFontColor('#fff').setFontSize(20).setFontWeight('bold').setSize(200,100).setAnchorPoint(0,0).setPosition(310,15);
@@ -57,9 +60,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	crosshairs.add(crosshair);
 
 	var keyObjects =  helloworld.Helpers.createGroupInfo(new goog.structs.Set(),"keyObjects",collisionManager,target);
-	//keyObjects.iterable.add(sampleKey);
-
-
 	var googlesFrame = new lime.Sprite().setSize(1024,768).setPosition(512,384).setFill('assets/bg_impuls1.png');
 
 	background.appendChild(cc);
@@ -73,13 +73,10 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 
 	impuls.setMovingBounds(75,1024-65,768-110,65);
 	var collisionManager = new helloworld.CollisionManager();
-
-	//collisionManager.addCollidable("keyObjects",sampleKey);
 	collisionManager.addCollidable("Crosshair",crosshair);
 
 	target.appendChild(crosshair);
 	this.appendChild(background);
-	//target.appendChild(sampleKey);
 	this.appendChild(hudBG);
 	this.appendChild(target);
 	this.appendChild(lifebar);
@@ -131,8 +128,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 
    moving = function(dt) {
 		impuls.move();
-		//sampleKey.move();
-
 		goog.iter.forEach(keyObjects.iterable, function(ko) {
 			ko.move(dt);
 		});
@@ -142,10 +137,41 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		crosshair.setFill('assets/crosshair.png');
 		collisions = collisionManager.checkAllCollisions("Crosshair","keyObjects");
 		for (var i = collisions.length - 1; i >= 0; i--) {
-			console.log(collisions[i][1]);
 			crosshair.setFill('assets/crosshair_locked.png');
 		};
 	};
+
+	_this=this;
+
+	finalizeLevel = function (){
+		console.log(score);
+
+		if (score > 30){
+
+			if (viewMode == 0) {
+				_this.isBeingFinalized = true;
+				console.log('11111111111111');
+				var duration = 3.0;
+				var scaleAnim = new lime.animation.ScaleTo(0.2).setDuration(duration);
+				var moveAnim = new lime.animation.MoveTo(1024/2,768/2).setDuration(duration);
+				var anim = new lime.animation.Spawn(scaleAnim,moveAnim);
+				impuls.runAction(anim);
+				console.log('aaaaa');
+				goog.events.listen(anim,lime.animation.Event.STOP,function(e){
+					console.log('delay OK');
+					console.log('OK!');
+					_this.scheduleAll(false);
+					director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,false,"Dupa"));
+
+				});
+				console.log('22222222222222222');
+				
+			} else {
+
+			}
+		}
+	}
+		
 
 	lifebarUpdate = function(dt) {
 		var sizeF = crosshair.getLife() / crosshair.getFullLife();
@@ -165,8 +191,13 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		}
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
+		
+		if (!_this.isBeingFinalized) {
+			
+			finalizeLevel();
+		};
 		if (sizeF<0){
-			alert("jubidubidu");
+			
 		}
 
 	};
@@ -201,11 +232,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 			nk.movingSpeed.x = 13;
 		}
 
-		//check it!
-		//if (score > 800){
-		//	nk.movingSpeed.x = 16;
-		//}
-
 		target.appendChild(nk);
 		collisionManager.addCollidable("keyObjects",nk);
 		keyObjects.iterable.add(nk);
@@ -216,8 +242,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		collisions = collisionManager.checkAllCollisions("Crosshair","keyObjects");
 		if (typeof collisions[0] != 'undefined'){
 		} else {	
-			crosshair.makeInjury(1);
-			lifebarUpdate();
 			return ;
 		}
 
@@ -227,9 +251,23 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 			score+=10;
 			collisions[0][1].movingSpeed.y = 15;
 			collisions[0][1].movingSpeed.x = 15;
-			//if (keypresed == )
 			collisions[0][1].movingDirection["left"] = true;
 			collisions[0][1].movingDirection["down"] = true;
+			
+			/*console.log(viewMode)
+			if ( (this.viewMode == 0)  ){ //&& (impuls.rotate == false) && (collisions[0][1].keyval == 37) ) {
+				var rotation = new lime.animation.RotateBy(30);//.setDuration(2);
+				console.log('aaaa!!!!!!!!!!!!!!!!!!!!!!!!')
+				impuls.runAction(rotation);
+				impuls.rotated=true;
+			}
+			console.log('aacccccaa!!!!!!!!!!!!!!!!!!!!!!!!')
+			if (viewMode == 0 && impuls.rotate == false && collisions[0][1].keyval == 39){
+				var rotation = new lime.animation.RotateBy(30).setDuration(2);
+				impuls.runAction(rotation);
+				impuls.rotated=true;
+			} */
+
 		} else {
 
 			switch (collisions[0][1].keyval) {
@@ -279,7 +317,6 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 
 	checkOutOfRange = function(dt){
 		goog.iter.forEach(keyObjects.iterable, function(element) {
-			console.log(element.getPosition().x);
 
 		if ( element.getPosition().x < 350){
 			switch (element.keyval) {
@@ -329,10 +366,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	} else {
 		goog.events.unlisten(target,['keydown'],keydown);
 		goog.events.unlisten(target,['keyup'],keyup);
-
-
 		lime.scheduleManager.unschedule(moving,target);
-		//collisions
 		lime.scheduleManager.unschedule(collisionsCheck,target);
 		lime.scheduleManager.unschedule(checkOutOfRange,target);
 		lime.scheduleManager.unschedule(generateKey,target);;
@@ -342,10 +376,10 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	}
 
 	};
+			
 
-	_this=this;
 		// Menu button
-	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(20,60);
+	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(25,60);
 	this.appendChild(menuButton);
 	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
 		_this.scheduleAll(false);

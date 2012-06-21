@@ -12,7 +12,7 @@ helloworld.Monster = function(collidableManager) {
 	this.setFill('assets/wirus'+num+'.png');
 	//this.setAnchorPoint(0,0);
 	this.collision_radius = 32;
-	this.collision_damage = 20;
+	this.collision_damage = 2000;
 	this.life = 40;
 	this.bouncing = false;
 	this.timeout = 2000;
