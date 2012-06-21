@@ -104,6 +104,10 @@ helloworld.ImpulsScene= function(director,friends) {
 			case goog.events.KeyCodes.V:
 				changeView();
 				break;
+			case goog.events.KeyCodes.ESC:
+				_this.scheduleAll(false);
+				director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.ImpulsScene));
+				break;
 		}
 	};
 
