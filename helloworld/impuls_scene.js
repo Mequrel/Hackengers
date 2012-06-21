@@ -191,6 +191,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		}
 
 		hpText.setText('Health: '+ Math.round(sizeF*100).toString()+'%');
+		
 		if (!_this.isBeingFinalized) {
 			
 			finalizeLevel();
