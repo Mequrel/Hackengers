@@ -22,6 +22,7 @@ goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
 goog.require('helloworld.PauseScene');
 goog.require('lime.animation.FadeTo');
+goog.require('helloworld.FacebookScene');
 
 goog.require('lime.animation.Event');
 
