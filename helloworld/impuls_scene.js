@@ -345,6 +345,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		//  moving
 		lime.scheduleManager.schedule(moving,target);
 		//collisions
+		//audios.missle.rewind().setLoop(true).play();
 		lime.scheduleManager.schedule(collisionsCheck,target);
 		lime.scheduleManager.scheduleWithDelay(checkOutOfRange,target,1000);
 		lime.scheduleManager.scheduleWithDelay(generateKey,target,800);;
@@ -352,6 +353,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
 		lime.scheduleManager.scheduleWithDelay(tunnelDraw,background,75);
 	} else {
+		audios.background.rewind().setLoop(true).stop();
 		goog.events.unlisten(target,['keydown'],keydown);
 		goog.events.unlisten(target,['keyup'],keyup);
 		lime.scheduleManager.unschedule(moving,target);
