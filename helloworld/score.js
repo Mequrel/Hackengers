@@ -17,3 +17,8 @@ helloworld.Score.prototype.addScore = function(score) {
 	this.value += score;
 	this.setText(this.value);
 };
+
+
+helloworld.Score.prototype.getScore = function() {
+	return this.value;
+};
