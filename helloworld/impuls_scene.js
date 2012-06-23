@@ -173,6 +173,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	}
 		
 
+	_this=this;
 	lifebarUpdate = function(dt) {
 		var sizeF = crosshair.getLife() / crosshair.getFullLife();
 		lifebar.setSize(500*sizeF,20);
@@ -197,7 +198,10 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 			finalizeLevel();
 		};
 		if (sizeF<0){
-			
+			console.log(_this);
+			_this.scheduleAll(false);
+			director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,true,"I've played Hackengers and tried to chase the data!","Remember, that in real world you have to be careful what you publish!","You were so close! Try again and chase the data!"),lime.transitions.SlideInUp,2);
+
 		}
 
 	};
