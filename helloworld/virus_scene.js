@@ -18,6 +18,7 @@ goog.require('helloworld.LifeBar')
 goog.require('helloworld.Moveable');
 goog.require('helloworld.Monster');
 goog.require('helloworld.Missle');
+goog.require('lime.transitions.SlideInUp');
 goog.require('helloworld.Audio');
 goog.require('helloworld.Explosion');
 goog.require('helloworld.CollisionManager');
@@ -38,7 +39,7 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 
 	var target = new lime.Layer().setPosition(0,0),
 		background = new lime.Layer().setPosition(0,0),
-		player = new helloworld.Player().setPosition(450,600),
+		player = new helloworld.Player().setPosition(450,500),
 		lifeBar = new helloworld.LifeBar(player.getLife(),300).setPosition(1000,20),
 		scoreBar = new helloworld.Score().setPosition(100,10);
 
@@ -140,16 +141,33 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 
 
 	playerDied = function(player) {
-		var text = "Dupa";
+		var text = "I've played Hackengers and saved "+ (friends[0] ? friends[Math.floor(Math.random()*friends.length)].name : "my friend")+ "from viruses! Play Hackengers and save your friends!";
+		var text2 = "You were so close! Try again and save your friend!";
+		lime.scheduleManager.callAfter(function(delay) {
+			var isFacebookActive = false;
+			if (typeof(FB) != 'undefined' && FB != null && typeof(MyFB) != 'undefined' && MyFB != null ) {
+			    isFacebookActive = true;
+			};
+			director.replaceScene(new helloworld.FacebookScene(director,friends,helloworld.VirusScene,menuSceneType,scoreBar.getScore(),isFacebookActive,text,text2),lime.transitions.SlideInUp,2);
+		},this,3000);
 		_this.scheduleAll(false);
+	};
+
+	
+	player.registerObserver(this,playerDamaged,playerDied);
+
+	playerWon = function() {
+		var text = "I've played Hackengers and saved "+ (friends[0] ? friends[0].name : "my friend")+ " from viruses! Play Hackengers and save your friends!";
+		var text2 = "Congratulations! You won! You saved your friend and collected "+scoreBar.getScore()+" points!";
+
 		var isFacebookActive = false;
 		if (typeof(FB) != 'undefined' && FB != null && typeof(MyFB) != 'undefined' && MyFB != null ) {
 		    isFacebookActive = true;
 		};
-		director.replaceScene(new helloworld.FacebookScene(director,friends,helloworld.VirusScene,menuSceneType,scoreBar.getScore(),isFacebookActive,text));
-	};
+		director.replaceScene(new helloworld.FacebookScene(director,friends,helloworld.VirusScene,menuSceneType,scoreBar.getScore(),isFacebookActive,text,text2),lime.transitions.SlideInUp,2);
 
-	player.registerObserver(this,playerDamaged,playerDied);
+		_this.scheduleAll(false);
+	};
 
 
 	explosionEnded = function(explosion) {
@@ -190,6 +208,10 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 		corrupted_file.setMovingSpeed(runawayspeed.y,"y");
 		scoreBar.addScore(200);
 		collisionManager.removeCollidable(stars.group,corrupted_file);
+		corrupted_file.setFill("assets/file.png");
+		var life = player.getLife() + 5;
+		player.setLife(life);
+		lifeBar.setLife(life);
    }
 
    creatingMonsters = function (dt) {
@@ -240,7 +262,6 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 
    moving = function(dt) {
    		// Player
-   		playerDied();
 		player.move();
 		// Missles
 		goog.iter.forEach(missles.iterable, function(missle) {
@@ -303,6 +324,11 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 		};
 	};
 	
+	scoreCheck = function(dt) {
+		if (scoreBar.getScore()>=10000) {
+   			playerWon();
+   		};
+	}
 	this.scheduleAll = function(schedule) {
 		if (schedule) {
 			goog.events.listen(target,['keydown'],keydown);
@@ -321,8 +347,18 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 			lime.scheduleManager.scheduleWithDelay(cleaning,target,1000);
 			// shooting monsters
 			lime.scheduleManager.scheduleWithDelay(monsterShoot,target,4000);
-		} else {
 
+			// score Check CAN'T be scheduled with interval, because of the bug in LimeJS engine
+			lime.scheduleManager.schedule(scoreCheck);
+
+
+			audios.background.setLoop(true).play();
+
+
+		} else {
+			audios.background.setLoop(false).rewind().stop();
+			audios.missle.setLoop(false).rewind().stop();
+			player.setFiring(false);
 			goog.events.unlisten(target,['keydown'],keydown);
 			goog.events.unlisten(target,['keydown'],keyup);
 			lime.scheduleManager.unschedule(creatingStars,background);
@@ -332,19 +368,21 @@ helloworld.VirusScene= function(director,friends,menuSceneType) {
 			lime.scheduleManager.unschedule(firing,target);
 			lime.scheduleManager.unschedule(cleaning,target);
 			lime.scheduleManager.unschedule(monsterShoot,target);
+			lime.scheduleManager.unschedule(scoreCheck);
 		}
 	};
 
 
 	// Menu button
-	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(20,60);
+	var menuButton = new lime.GlossyButton("MENU").setSize(50,30).setPosition(40,30);
 	this.appendChild(menuButton);
 	goog.events.listen(menuButton, ['mousedown', 'touchstart'], function(e) {
 		_this.scheduleAll(false);
-		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.VirusScene,menuSceneType));
+		director.pushScene(new helloworld.PauseScene(director,friends,_this,helloworld.VirusScene,menuSceneType),lime.transitions.SlideInUp,2);
 	});
 
 	this.scheduleAll(true);
+
 };
 
 goog.inherits(helloworld.VirusScene, lime.Scene);

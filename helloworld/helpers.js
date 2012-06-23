@@ -15,7 +15,7 @@ helloworld.Helpers.createStandardSplashScreen = function(layer,handler) {
 	var splash = new helloworld.Splash();
 	splash.setSize(500,400);
 	splash.setPosition(100,100);
-	splash.setFill("#000");
+	splash.setFill("assets/bg.jpg");
 	if (handler) {
 		splash.registerOnClose(handler);
 	};

@@ -21,10 +21,15 @@ goog.require('helloworld.Tunnel');
 goog.require('helloworld.ImpulsPlayer');
 goog.require('helloworld.KeyObject');
 goog.require('helloworld.PauseScene');
+<<<<<<< HEAD
 goog.require('helloworld.FacebookScene');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
 goog.require('lime.animation.Spawn');
+=======
+goog.require('lime.animation.FadeTo');
+goog.require('helloworld.FacebookScene');
+>>>>>>> ce165e3f00929cd9b3b9015a4ce9198afd4f0de8
 
 goog.require('lime.animation.Event');
 
@@ -146,7 +151,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 	finalizeLevel = function (){
 		console.log(score);
 
-		if (score > 1000){
+		if (score > 30){
 
 			if (viewMode == 0) {
 				_this.isBeingFinalized = true;
@@ -161,7 +166,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 					console.log('delay OK');
 					console.log('OK!');
 					_this.scheduleAll(false);
-					director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,true,"I've played Hackengers and chased the data!","Remember, that in real world you have to be careful what you publish!"),lime.transitions.SlideInUp,2);
+					director.pushScene(new helloworld.FacebookScene(director,friends,helloworld.ImpulsScene,menuSceneType,score,false,"Dupa"));
 
 				});
 				console.log('22222222222222222');
@@ -363,9 +368,7 @@ helloworld.ImpulsScene= function(director,friends,menuSceneType) {
 		lime.scheduleManager.scheduleWithDelay(lifebarUpdate,target,1000);
 		lime.scheduleManager.scheduleWithDelay(cleanup,target,1000);
 		lime.scheduleManager.scheduleWithDelay(tunnelDraw,background,75);
-		audios.background.setLoop(true).play();
 	} else {
-		audios.background.setLoop(false).rewind().stop();
 		goog.events.unlisten(target,['keydown'],keydown);
 		goog.events.unlisten(target,['keyup'],keyup);
 		lime.scheduleManager.unschedule(moving,target);

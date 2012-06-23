@@ -9,12 +9,12 @@ helloworld.Missle = function(player) {
 	helloworld.Aliveable.call(this);
 	this.movingSpeed.y = 15;
 	this.setSize(5,15);
-	this.setFill('#00f');
+	this.setFill('#f02');
 	this.setAnchorPoint(0,0);
 	var player_position = player.getPosition();
 	var player_size = player.getSize();
 	var my_position = {}
-	my_position.x = player_position.x+player_size.width/2 + 31;
+	my_position.x = player_position.x+player_size.width/2 - 41;
 	my_position.y = player_position.y - 2;
 	this.setPosition(my_position.x,my_position.y);
 

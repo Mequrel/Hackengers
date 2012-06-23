@@ -5,12 +5,14 @@ goog.require('helloworld.StandardScene');
 goog.require('lime.Layer');
 goog.require('lime.Node');
 goog.require('lime.Sprite');
+goog.require('lime.Label');
+goog.require('lime.transitions.SlideInLeft');
 goog.require('helloworld.Helpers');
 goog.require('lime.GlossyButton');
 goog.require('lime.scheduleManager');
 
 
-helloworld.FacebookScene= function(director,friends,previousSceneType,menuSceneType,score,isFacebookActive,default_text) {
+helloworld.FacebookScene= function(director,friends,previousSceneType,menuSceneType,score,isFacebookActive,default_text,text2) {
 	helloworld.StandardScene.call(this,friends,director);
 	var node = new lime.Node().setSize(200,200);
 	var input = document.createElement('textarea');
@@ -22,6 +24,9 @@ helloworld.FacebookScene= function(director,friends,previousSceneType,menuSceneT
 	node.appendChild(input);
 	node.setPosition(-224,-50);
 
+	var congs = new lime.Label(text2).
+		setPosition(0,-20).setSize(400,300).setFontSize(24).setFontColor("#fff");
+	this.splash.appendChild(congs);
 	_this = this;
 
 	lime.GlossyButton.prototype.setFontColor = function(clr) {
@@ -32,8 +37,7 @@ helloworld.FacebookScene= function(director,friends,previousSceneType,menuSceneT
 
 	backToMainMenu = function(e) {
 		handler = function() {
-			director.popScene();
-			director.replaceScene(new menuSceneType(director,friends));
+			director.replaceScene(new menuSceneType(director,friends),lime.transitions.SlideInLeft,2);
 		}
 		_this.splash.registerOnClose(handler);
 		_this.splash.close(1);

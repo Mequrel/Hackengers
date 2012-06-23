@@ -33,6 +33,11 @@ helloworld.Aliveable.prototype.getLife = function() {
 	return this.life;
 };
 
+helloworld.Aliveable.prototype.setLife = function(life) {
+	this.life = life;
+	return this;
+};
+
 // Register observers. Observers will be notified when one or two events happen
 helloworld.Aliveable.prototype.registerObserver = function(key,damage_func,died_func) {
 	if (typeof(damage_func) != 'undefined' && damage_func!=null) {

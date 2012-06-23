@@ -7,8 +7,8 @@ helloworld.Player = function() {
 	helloworld.Aliveable.call(this);
 	this.movingSpeed.x = 8;
 	this.movingSpeed.y = 8;
-	this.setSize(100,147);
-	this.setFill('assets/siliconman2.png');
+	this.setSize(100,170);
+	this.setFill('assets/protector.png');
 	this.setAnchorPoint(0,0);
 
 	this.life = 100;
